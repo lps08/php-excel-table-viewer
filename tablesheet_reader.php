@@ -49,6 +49,27 @@ class PhpSheet {
         return $data;
     }
 
+    function cpfValidation($cpf) {
+        // get only numeric characters
+        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
+
+        if ((strlen($cpf) != 11) && (preg_match('/(\d)\1{10}/', $cpf))) {
+            return false;
+        }
+    
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+        return true;
+    
+    }
+
     public function saveSheet() {
         $data = $this->getArrayData();
         $data_lenght = count($data);
@@ -60,6 +81,11 @@ class PhpSheet {
         for ($i=6; $i < $data_lenght; $i++) { 
             $nome = $data[$i][0];
             $cpf = $data[$i][1];
+
+            if (!$this->cpfValidation($cpf)) {
+                return false;
+            }
+
             $rg = $data[$i][2];
             $dataNascimento = $data[$i][3];
             $nomeMae = $data[$i][4];
